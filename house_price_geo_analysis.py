@@ -1,11 +1,12 @@
 import pandas as pd
 import matplotlib.pyplot as plt
-import math
 import geopandas as gpd
 from shapely.geometry import Point
 import contextily as ctx
 import seaborn as sns
+import math
 from locations_coords import LOCATIONS
+from conv_calculation import conv_factor_kc
 
 df_houseprice = pd.read_csv(r"C:\Users\Wiktoria\Desktop\Python Basics\Projekt\Regresja liniowa\kc_house_data.csv")
 
@@ -56,15 +57,6 @@ def add_distance_columns(df, locations):
             lambda r: calc_manhattan_dist(r['lat'], r['long'], coords[0], coords[1]), axis=1)
     return df
 
-df_houseprice = add_distance_columns(df_houseprice, LOCATIONS)
-
-
-#conversion rate for Seattle:
-#conv= 111*cos(lat)
-angle_deg = 47.6
-angle_rad = math.radians(angle_deg)
-conv_factor_kc = 111 * math.cos(angle_rad) #1 degree of latitude difference-74.85km for King County
-
 def analyze_dist_col(df, columns, conv_factor_kc):
     
     for col in columns:
@@ -80,6 +72,8 @@ def analyze_dist_col(df, columns, conv_factor_kc):
               + str(df[f'{col}_km'].corr(df['price_by_sqft'])))
 
     return df
+
+df_houseprice = add_distance_columns(df_houseprice, LOCATIONS)
 
 columns_to_convert = ['dist_to_downtown', 'dist_to_bellevue', 'dist_to_northwest_seattle']
 
