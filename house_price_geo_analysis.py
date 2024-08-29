@@ -5,6 +5,7 @@ import geopandas as gpd
 from shapely.geometry import Point
 import contextily as ctx
 import seaborn as sns
+from locations_coords import LOCATIONS
 
 df_houseprice = pd.read_csv(r"C:\Users\Wiktoria\Desktop\Python Basics\Projekt\Regresja liniowa\kc_house_data.csv")
 
@@ -55,7 +56,7 @@ def add_distance_columns(df, locations):
             lambda r: calc_manhattan_dist(r['lat'], r['long'], coords[0], coords[1]), axis=1)
     return df
 
-df_houseprice = add_distance_columns(df_houseprice, locations)
+df_houseprice = add_distance_columns(df_houseprice, LOCATIONS)
 
 
 #conversion rate for Seattle:
