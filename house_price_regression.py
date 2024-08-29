@@ -3,6 +3,9 @@ import matplotlib.pyplot as plt
 import numpy as np
 import seaborn as sns
 from pymongo import MongoClient
+from house_price_geo_analysis import calc_manhattan_dist, add_distance_columns, analyze_dist_col, plot_dist_analysis
+from locations_coords import LOCATIONS
+from conv_calculation import conv_factor_kc
 
 df_houseprice = pd.read_csv(r"C:\Users\Wiktoria\Desktop\Python Basics\Projekt\Regresja liniowa\kc_house_data.csv")
 
@@ -88,7 +91,16 @@ df_houseprice['sqft_lot'].hist(bins=50)
 df_houseprice['sqft_lot'] = df_houseprice['sqft_lot'].fillna(df_houseprice['sqft_lot'].median())
 df_houseprice.isna().sum()
 
+df_houseprice['price_by_sqft'] = df_houseprice['price'] / df_houseprice['sqft_living']
+df_houseprice['price_by_sqft'].isnull().any()
+df_houseprice['price_by_sqft'].describe()
 
+
+col_to_convert = ['dist_to_downtown', 'dist_to_bellevue', 'dist_to_northwest_seattle']
+
+df_houseprice = add_distance_columns(df_houseprice, LOCATIONS)
+df_houseprice = analyze_dist_col(df_houseprice, col_to_convert, conv_factor_kc)
+df_houseprice = plot_dist_analysis(df_houseprice)
 #EDA
 
 #TARGET
@@ -672,7 +684,6 @@ corr_grade_rate
 
 
 df_houseprice = df_houseprice[(df_houseprice['grade'] <= 11.0) & (df_houseprice['grade'] > 4.0)]
-
 
 df_houseprice = df_houseprice.drop(columns=['date', 'zipcode', 'lat', 'long', 'yr_renovated', 'price'])
 
