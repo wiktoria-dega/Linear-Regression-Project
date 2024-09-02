@@ -6,6 +6,7 @@ from pymongo import MongoClient
 from house_price_geo_analysis import calc_manhattan_dist, add_distance_columns, analyze_dist_col, plot_dist_analysis
 from locations_coords import LOCATIONS
 from conv_calculation import conv_factor_kc
+from datetime import datetime
 
 df_houseprice = pd.read_csv(r"C:\Users\Wiktoria\Desktop\Python Basics\Projekt\Regresja liniowa\kc_house_data.csv")
 
@@ -141,7 +142,6 @@ plt.ylabel('Count')
 plt.figure()
 df_houseprice['price_log'].plot.box()
 
-#df_houseprice = df_houseprice[(df_houseprice['price_log'] <= 14.5) & (df_houseprice['price_log'] >= 11.5)]
 
 #What is the range of price?
 df_houseprice['price'].min()
@@ -516,14 +516,6 @@ f'Correlation coefficient equals {corr_living_15}'
 
 df_houseprice = df_houseprice[df_houseprice['sqft_living15'] <= 5000.0]
 
-'''
-plt.figure()
-df_houseprice['sqft_living15'].hist(bins=30)
-
-plt.figure()
-df_houseprice['sqft_living15'].plot(kind='box')
-'''
-
 #Does the plot area of the nearest 15 neighbors affect the price?
 plt.figure()
 df_houseprice['sqft_lot15'].hist(bins=50)
@@ -685,7 +677,54 @@ corr_grade_rate
 
 df_houseprice = df_houseprice[(df_houseprice['grade'] <= 11.0) & (df_houseprice['grade'] > 4.0)]
 
-df_houseprice = df_houseprice.drop(columns=['date', 'zipcode', 'lat', 'long', 'yr_renovated', 'price'])
+#NEW COLUMNS
+#number of all rooms
+df_houseprice['number_of_rooms'] = df_houseprice['bedrooms'] + df_houseprice['bathrooms']
+price_by_rooms = df_houseprice.groupby('number_of_rooms')['price'].mean()
+
+plt.figure()
+price_by_rooms.plot(kind='line')
+
+df_houseprice['number_of_rooms'].corr(df_houseprice['price'])
+
+#age of house
+current_year = datetime.now().year
+
+df_houseprice['age_of_house'] = current_year - df_houseprice['yr_built']
+price_by_age = df_houseprice.groupby('age_of_house')['price'].mean()
+
+plt.figure()
+price_by_age.plot(kind='line')
+df_houseprice['age_of_house'].corr(df_houseprice['price'])
+
+#scale of view
+df_houseprice['view_scale'] = df_houseprice['waterfront'] + df_houseprice['view']
+price_by_view_sc = df_houseprice.groupby('view_scale')['price'].mean()
+
+plt.figure()
+price_by_rooms.plot(kind='line')
+
+df_houseprice['view_scale'].corr(df_houseprice['price'])
+
+#condition scale
+df_houseprice['cond_scale'] = df_houseprice['condition'] * df_houseprice['grade']
+price_by_cond_sc = df_houseprice.groupby('cond_scale')['price'].mean()
+
+plt.figure()
+price_by_cond_sc.plot(kind='line')
+
+df_houseprice['cond_scale'].corr(df_houseprice['price'])
+
+df_houseprice['dist_to_downtown_km'].corr(df_houseprice['price'])
+
+
+df_houseprice = df_houseprice.drop(columns=['date', 'zipcode', 'lat', 'long',
+                                            'yr_renovated', 'price', 'yr_built',
+                                            'price_by_sqft', 'dist_to_downtown',
+                                            'dist_to_bellevue', 'dist_to_northwest_seattle',
+                                            'decade', 'dist_to_downtown_km_bins',
+                                            'dist_to_bellevue_km_bins',
+                                            'dist_to_northwest_seattle_km_bins'])
 
 correlation = df_houseprice.corr()
 correlation
@@ -694,10 +733,23 @@ plt.figure()
 sns.heatmap(correlation, annot=True)
 plt.title('Correlation Matrix')
 
-df_houseprice = df_houseprice.drop(columns='sqft_above')
 
+df_houseprice = df_houseprice.drop(columns=['sqft_above', 'dist_to_downtown_km',
+                                            'view_scale', 'bedrooms'])
 
-'''client = MongoClient('mongodb://localhost:27017/')
+client = MongoClient('mongodb://localhost:27017/')
+db = client['test_nowe_kol']
+collection = db['test_nowe'] 
+
+data = df_houseprice.to_dict('records')
+
+collection.insert_many(data)
+
+for doc in collection.find():
+    print(doc)
+    
+'''
+client = MongoClient('mongodb://localhost:27017/')
 db = client['house_data_regression_database']
 collection = db['house_data'] 
 
@@ -707,7 +759,7 @@ collection.insert_many(data)
 
 for doc in collection.find():
     print(doc)
-    '''
+'''
 '''
 client = MongoClient('mongodb://localhost:27017/')
 db = client['testowa_regresja']
