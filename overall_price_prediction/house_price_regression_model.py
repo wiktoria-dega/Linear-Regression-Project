@@ -9,6 +9,7 @@ from sklearn.metrics import mean_squared_error, r2_score
 from sklearn.tree import DecisionTreeRegressor
 from sklearn.ensemble import RandomForestRegressor
 from sklearn.model_selection import GridSearchCV
+from MAPE_error import mean_absolute_percentage_error
 
 client = MongoClient('mongodb://localhost:27017/')
 
@@ -46,10 +47,10 @@ model.fit(X_train_scaled, y_train)
 
 pred = model.predict(X_test_scaled)
 
-
 print(f'MSE error for test data: {mean_squared_error(np.exp(y_test), np.exp(pred))}')
 print(f'RMSE error for test data: {mean_squared_error(np.exp(y_test), np.exp(pred), squared=False)}')
 print(f'R2-score: {r2_score(np.exp(y_test), np.exp(pred))}')
+print(f'MAPE error for test data: {mean_absolute_percentage_error(np.exp(y_test), np.exp(pred))}')
 
 plt.figure()
 plt.scatter(list(range(len(y_test))), np.exp(y_test))
@@ -63,10 +64,10 @@ tree_reg.fit(X_train_scaled, y_train)
 
 pred_tree = tree_reg.predict(X_test_scaled)
 
-
 print(f'MSE error for test data: {mean_squared_error(np.exp(y_test), np.exp(pred_tree))}')
 print(f'RMSE error for test data: {mean_squared_error(np.exp(y_test), np.exp(pred_tree), squared = False)}')
 print(f'R2-score: {r2_score(np.exp(y_test), np.exp(pred_tree))}')
+print(f'MAPE error for test data: {mean_absolute_percentage_error(np.exp(y_test), np.exp(pred_tree))}')
 
 plt.figure()
 plt.scatter(list(range(len(y_test))), np.exp(y_test))
@@ -95,6 +96,7 @@ pred_forest = rnd_forest.predict(X_test_scaled)
 print(f'MSE error for test data: {mean_squared_error(np.exp(y_test), np.exp(pred_forest))}')
 print(f'RMSE error for test data: {mean_squared_error(np.exp(y_test), np.exp(pred_forest), squared = False)}')
 print(f'R2-score: {r2_score(np.exp(y_test), np.exp(pred_forest))}')
+print(f'MAPE error for test data: {mean_absolute_percentage_error(np.exp(y_test), np.exp(pred_forest))}')
 
 # importance of features
 for i,j in zip(rnd_forest.feature_importances_, X_train.columns):
@@ -120,4 +122,5 @@ pred_best = gs.best_estimator_.predict(X_test_scaled)
 print(f'MSE error for test data: {mean_squared_error(np.exp(y_test), np.exp(pred_best))}')
 print(f'RMSE error for test data: {mean_squared_error(np.exp(y_test), np.exp(pred_best), squared = False)}')
 print(f'R2-score: {r2_score(np.exp(y_test), np.exp(pred_best))}')
+print(f'MAPE error for test data: {mean_absolute_percentage_error(np.exp(y_test), np.exp(pred_best))}')
 
