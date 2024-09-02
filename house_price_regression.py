@@ -747,30 +747,6 @@ collection.insert_many(data)
 
 for doc in collection.find():
     print(doc)
-    
-'''
-client = MongoClient('mongodb://localhost:27017/')
-db = client['house_data_regression_database']
-collection = db['house_data'] 
 
-data = df_houseprice.to_dict('records')
-
-collection.insert_many(data)
-
-for doc in collection.find():
-    print(doc)
-'''
-'''
-client = MongoClient('mongodb://localhost:27017/')
-db = client['testowa_regresja']
-collection = db['test'] 
-
-data = df_houseprice.to_dict('records')
-
-collection.insert_many(data)
-
-for doc in collection.find():   
-    print(doc)
-    '''
     
 
